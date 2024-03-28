@@ -21,18 +21,22 @@ module.exports = async (logSources, printer) => {
   });
 
   newLogs.forEach((newLog, i) => {
-    heapPush(logHeap, { log: newLog, src: i });
+    heapPush(logHeap, { log: newLog, logSourcesIndex: i });
   });
 
   while (logHeap.length > 0) {
     const curr = heapPop(logHeap);
     printer.print(curr.log);
 
-    if (logStore[curr.src]) {
-      const newLog = await logStore[curr.src];
+    if (logStore[curr.logSourcesIndex]) {
+      const newLog = await logStore[curr.logSourcesIndex];
       if (newLog) {
-        heapPush(logHeap, { log: newLog, src: curr.src });
-        logStore[curr.src] = logSources[curr.src].popAsync();
+        heapPush(logHeap, {
+          log: newLog,
+          logSourcesIndex: curr.logSourcesIndex,
+        });
+        logStore[curr.logSourcesIndex] =
+          logSources[curr.logSourcesIndex].popAsync();
       }
     }
   }
