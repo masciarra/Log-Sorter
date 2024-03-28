@@ -26,17 +26,17 @@ module.exports = async (logSources, printer) => {
 
   while (logHeap.length > 0) {
     const curr = heapPop(logHeap);
+    const { logSourcesIndex } = curr;
     printer.print(curr.log);
 
-    if (logStore[curr.logSourcesIndex]) {
-      const newLog = await logStore[curr.logSourcesIndex];
+    if (logStore[logSourcesIndex]) {
+      const newLog = await logStore[logSourcesIndex];
       if (newLog) {
         heapPush(logHeap, {
           log: newLog,
-          logSourcesIndex: curr.logSourcesIndex,
+          logSourcesIndex: logSourcesIndex,
         });
-        logStore[curr.logSourcesIndex] =
-          logSources[curr.logSourcesIndex].popAsync();
+        logStore[logSourcesIndex] = logSources[logSourcesIndex].popAsync();
       }
     }
   }
