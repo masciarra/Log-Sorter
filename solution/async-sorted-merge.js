@@ -7,23 +7,33 @@ const { heapPush, heapPop } = require("./heap.js");
 module.exports = async (logSources, printer) => {
   const logHeap = [];
 
-  const promises = [];
-  for (let i = 0; i < logSources.length; i++) {
-    promises.push(logSources[i].popAsync());
-  }
+  const logStore = [];
 
-  const newLogs = await Promise.all(promises);
+  const heapPromises = [];
+
+  logSources.forEach((logSource) => {
+    heapPromises.push(logSource.popAsync());
+  });
+
+  const newLogs = await Promise.all(heapPromises);
+  logSources.forEach((logSource) => {
+    logStore.push(logSource.popAsync());
+  });
 
   newLogs.forEach((newLog, i) => {
-    heapPush(logHeap, { log: newLog, src: logSources[i] });
+    heapPush(logHeap, { log: newLog, src: i });
   });
 
   while (logHeap.length > 0) {
     const curr = heapPop(logHeap);
     printer.print(curr.log);
-    const sourcePop = await curr.src.popAsync();
-    if (sourcePop) {
-      heapPush(logHeap, { log: sourcePop, src: curr.src });
+
+    if (logStore[curr.src]) {
+      const newLog = await logStore[curr.src];
+      if (newLog) {
+        heapPush(logHeap, { log: newLog, src: curr.src });
+      }
+      logStore[curr.src] = logSources[curr.src].popAsync();
     }
   }
 
