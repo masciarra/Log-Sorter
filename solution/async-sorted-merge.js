@@ -20,8 +20,8 @@ module.exports = async (logSources, printer) => {
     logStore.push(logSource.popAsync());
   });
 
-  newLogs.forEach((newLog, i) => {
-    heapPush(logHeap, { log: newLog, logSourcesIndex: i });
+  newLogs.forEach((newLog, logSourcesIndex) => {
+    heapPush(logHeap, { log: newLog, logSourcesIndex });
   });
 
   while (logHeap.length > 0) {
@@ -33,7 +33,7 @@ module.exports = async (logSources, printer) => {
       if (newLog) {
         heapPush(logHeap, {
           log: newLog,
-          logSourcesIndex: logSourcesIndex,
+          logSourcesIndex,
         });
         logStore[logSourcesIndex] = logSources[logSourcesIndex].popAsync();
       }
