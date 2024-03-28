@@ -32,8 +32,8 @@ module.exports = async (logSources, printer) => {
       const newLog = await logStore[curr.src];
       if (newLog) {
         heapPush(logHeap, { log: newLog, src: curr.src });
+        logStore[curr.src] = logSources[curr.src].popAsync();
       }
-      logStore[curr.src] = logSources[curr.src].popAsync();
     }
   }
 
